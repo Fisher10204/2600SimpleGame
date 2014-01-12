@@ -60,6 +60,7 @@ Start
 		sta				   GRP0
 		lda				   #$C3
 		sta				   COLUP0
+		ldx					#0
         
 ;------------------------------------------------
 ; Vertical Blank
@@ -75,23 +76,29 @@ MainLoop
         sta         WSYNC
         inc         horiz
         
-        lda                horiz
+        
         clc
         sta                WSYNC
+;        nop
+ ;       nop
         nop
         nop
         nop
         nop
         nop
         nop
-        nop
-        nop
-        nop
+		nop
+		
+		
+		
+		
+		lda				   horiz
 .horizloop
         sbc                #15                ;2
         bpl                .horizloop        ;3
         sta                RESBL
-        
+
+
 .waitForVBlank
         lda                INTIM
         bne                .waitForVBlank
@@ -132,8 +139,7 @@ DrawScreen
         sta                WSYNC
 		
 		;used for player sprite
-;		ldx				   #85
-;		sta				   WSYNC
+
         
 .ballloop
         tya
@@ -141,37 +147,39 @@ DrawScreen
         sbc                vert
         adc                #7		;height of ball
 
+		;sta                RESP0
         bcs                .enableBall
+		;bpl				   .playerEnable
+		
         lda                #0
         sta                ENABL
+
         jmp                .dontEnableBall
 .enableBall
         lda                #2
         sta                ENABL
-.dontEnableBall
-        dey
-        sta                WSYNC
-        bne                .ballloop
+		lda				   #PLAYER1G
+		sta				   GRP0
+		sta				   RESP0
+		jmp				.dontEnableBall
 
-;.playerLoop
-;		txa
-;		clc
-;		sbc				   pv
-;		adc				   #10
-;		
-;		bcs				   .enablePlayer
-;		lda				   #%00000000
-;		sta				   GRP0
-;		jmp				   .dontEnablePlayer
-;.enablePlayer
-;		lda				   #PLAYER1G
-;		sta				   GRP0
-;		lda				   #2
-;		sta                RESP0
-;.dontEnablePlayer
-;		dex
-;		;sta				   WSYNC
-;		bne				   .playerLoop
+.playerEnable
+	lda				   #PLAYER1G
+	sta				   GRP0
+	sta				   RESP0
+		
+.dontEnableBall
+		
+        ;dey
+        ;sta                WSYNC
+		tax				
+		lda				#%00000000
+		sta				GRP0
+		txa
+		;ldx					#0
+		dey
+		sta				WSYNC
+        bne                .ballloop
 
 ;drawing bottom of playfield
         lda                #%11111111
