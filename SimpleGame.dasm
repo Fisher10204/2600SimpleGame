@@ -1,8 +1,8 @@
 ;------------------------------------------------
 ;
-; untitled
+; The most awesome game in the history of ever
 ; Atari VCS Game 
-; Created by Brinkman, Bo Dr. on 2014-01-10.
+; Created by Jacob McCanty and Stevie Yakkel on 2014-01-12.
 ;
 ; Copyright (c) 2014 __MyCompanyName__. All rights reserved.
 ;
@@ -20,6 +20,7 @@ BLACK = $00
 
 PF_REFLECT = %00000001
 PF_BALL_SIZE4 = %00100000
+PLAYER1G =	%11111111
 
 ;------------------------------------------------
 ; RAM
@@ -29,6 +30,7 @@ PF_BALL_SIZE4 = %00100000
 
 horiz        .byte
 vert        .byte
+pv			.byte
 
 ;------------------------------------------------
 ; Start of ROM
@@ -50,6 +52,14 @@ Start
         sta                horiz
         lda                #85
         sta                vert
+
+		lda				   #70
+		sta				   pv
+
+		lda				   #%00000000
+		sta				   GRP0
+		lda				   #$C3
+		sta				   COLUP0
         
 ;------------------------------------------------
 ; Vertical Blank
@@ -117,15 +127,19 @@ DrawScreen
         lda                #0
         sta                PF1
         sta                PF2
-        
+        ;used for ball
         ldy                #177+1
         sta                WSYNC
+		
+		;used for player sprite
+;		ldx				   #85
+;		sta				   WSYNC
         
 .ballloop
         tya
         clc
         sbc                vert
-        adc                #7
+        adc                #7		;height of ball
 
         bcs                .enableBall
         lda                #0
@@ -139,6 +153,27 @@ DrawScreen
         sta                WSYNC
         bne                .ballloop
 
+;.playerLoop
+;		txa
+;		clc
+;		sbc				   pv
+;		adc				   #10
+;		
+;		bcs				   .enablePlayer
+;		lda				   #%00000000
+;		sta				   GRP0
+;		jmp				   .dontEnablePlayer
+;.enablePlayer
+;		lda				   #PLAYER1G
+;		sta				   GRP0
+;		lda				   #2
+;		sta                RESP0
+;.dontEnablePlayer
+;		dex
+;		;sta				   WSYNC
+;		bne				   .playerLoop
+
+;drawing bottom of playfield
         lda                #%11111111
         sta                PF0
         sta                PF1
@@ -151,6 +186,7 @@ DrawScreen
         sta                WSYNC
         sta                WSYNC
         sta                WSYNC
+		
 
 ;------------------------------------------------
 ; Overscan
