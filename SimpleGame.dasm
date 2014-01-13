@@ -81,15 +81,18 @@ MainLoop
         sta                WSYNC
 ;        nop
  ;       nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-		nop
+  ;      nop
+   ;     nop
+    ;    nop
+     ;   nop
+      ;  nop
+       ; nop
+		;nop
 		
-		
+
+		lda				   #PLAYER1G
+		sta				   GRP0
+		sta				   RESP0
 		
 		
 		lda				   horiz
@@ -158,25 +161,12 @@ DrawScreen
 .enableBall
         lda                #2
         sta                ENABL
-		lda				   #PLAYER1G
-		sta				   GRP0
-		sta				   RESP0
 		jmp				.dontEnableBall
 
-.playerEnable
-	lda				   #PLAYER1G
-	sta				   GRP0
-	sta				   RESP0
+
 		
 .dontEnableBall
 		
-        ;dey
-        ;sta                WSYNC
-		tax				
-		lda				#%00000000
-		sta				GRP0
-		txa
-		;ldx					#0
 		dey
 		sta				WSYNC
         bne                .ballloop
