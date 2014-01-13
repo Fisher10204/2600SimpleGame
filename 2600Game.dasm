@@ -21,6 +21,8 @@ BLACK = #$00
 PF_REFLECT = %00000001
 PF_BALL_SIZE4 = %00100000
 PLAYER1G =	%11111111
+PLAYER_RIGHT = 1
+PLAYER_LEFT = -1
 
 ;------------------------------------------------
 ; RAM
@@ -28,12 +30,15 @@ PLAYER1G =	%11111111
     SEG.U   variables
     ORG     $80
 
-bgcolor		.byte
-frame		.byte
-
-horiz       .byte
-vert        .byte
-pv			.byte
+bgcolor				.byte
+frame				.byte
+score				.byte
+starting_value_lo	.byte
+starting_value_hi	.byte
+horiz       		.byte
+vert        		.byte
+pv					.byte
+loopCounter			.byte
 ;------------------------------------------------
 ; Start of ROM
 ;------------------------------------------------
@@ -45,12 +50,12 @@ Start
 	
 	lda                	#PF_REFLECT | PF_BALL_SIZE4
     sta                	CTRLPF
-    lda                	#2
-    sta                	ENABL
+    ;lda                	#2
+    ;sta                	ENABL
     
     lda                	#0
     sta                	horiz
-    lda                	#85
+    lda                	#30
     sta                	vert
 	sta					pv
 
@@ -59,11 +64,19 @@ Start
 	lda				  	#$C3
 	sta 				COLUP0
 	
-	lda                #$80
-    sta                COLUBK
+	lda                	#$80
+    sta                	COLUBK
 
-	lda                #$47
-    sta                COLUPF
+	lda                	#$47
+    sta                	COLUPF
+	lda				   	#%00000000
+	sta					PF0
+	sta					PF1
+	sta					PF2 
+	
+	lda					#PLAYER_RIGHT
+	sta					HMP0
+
 
 ;------------------------------------------------
 ; Vertical Blank
@@ -77,18 +90,57 @@ MainLoop
 
 	;***** Vertical Blank code goes here
 	
+	lda		#5
+	sta		loopCounter
+	
+	;increment score
+	clc
+	sed
+	lda                score
+	adc                #1
+	sta                score
+	cld
+	;calculate starting_value for low bits of score
+	lda					score
+	and					#%00001111
+	;store current score
+	sta					starting_value_lo
+	;multiply it by 4
+	asl
+	asl
+	
+	clc
+	adc					starting_value_lo
+	sta					starting_value_lo
+	;Calculate starting x for the hi bits
+	lda					score
+	;Shifts the 4 hi bits to the right, 4 places
+	lsr
+	lsr
+	lsr
+	lsr
+	;store current score
+	sta					starting_value_hi
+	;multiply it by 4
+	clc
+	asl
+	asl
+	
+	clc
+	adc					starting_value_hi
+	sta					starting_value_hi
 .spriteStuff
 	lda		SWCHA
 	and		#%10000000
-	beq		.spriteUp
+	beq		.spriteRight
 	jmp		.waitForVBlank
 	
-.spriteUp
-	clc
-	lda		pv
-	sbc		#5
-	clc
-	
+.spriteRight
+	sta		HMOVE
+	jmp		.waitForVBlank
+
+.spriteLeft
+	sta		HMOVE
 	
 .waitForVBlank
 	lda		INTIM
@@ -99,9 +151,22 @@ MainLoop
 ; Kernel
 ;------------------------------------------------	
 DrawScreen
-;	ldx		#178+1		; Kernel goes here
-;drawing top of playfield
+;Kernel goes here
 
+	ldx				starting_value_hi
+	lda				.zero_left,x
+.drawScore
+	sta				PF1
+	sta				WSYNC
+	
+	sta				WSYNC
+	inx
+	lda				.zero_left,x
+	sta				PF1
+	dec				loopCounter
+	bne				.drawScore
+	
+;drawing top of playfield
 	lda             #%11111111
 	sta             PF0
 	sta             PF1
@@ -113,19 +178,36 @@ DrawScreen
 	sta				WSYNC
 	sta				WSYNC
 	sta				WSYNC
+	ldx 			#169
+	jmp				.playfieldLoop
+	
+.enableSprite
+	lda				#PLAYER1G
+	sta				GRP0
+	jmp				.continueplayfieldloop
 
-
-	ldx 			#179	
+.disableSprite
+	lda				#%00000000
+	sta				GRP0
+	jmp				.continueplayfieldloop
+	
 .playfieldLoop
+	txa
+	sbc				pv
+	adc				#5
+	bcs				.enableSprite
+	jmp				.disableSprite
+.continueplayfieldloop
 	sta				WSYNC
     lda            	#%00110000
     sta             PF0
 	lda             #0
-    sta             PF1
+	sta				PF1
     sta             PF2
 	dex
 	bne				.playfieldLoop
 
+.endplayfieldloop
 ;drawing bottom of playfield
 	lda             #%11111111
 	sta             PF0
@@ -141,7 +223,6 @@ DrawScreen
 	sta				WSYNC
 	sta				WSYNC
 	
-
 
 ;.scanline
 ;	dex
@@ -167,7 +248,77 @@ DrawScreen
 ;------------------------------------------------
 ; ROM Tables
 ;------------------------------------------------
-	;***** ROM tables go here
+;***** ROM tables go here
+.zero_left
+        .byte        %00011111
+        .byte        %01011111
+        .byte        %01011111
+        .byte        %01011111
+        .byte        %00011111
+
+.one_left
+        .byte        %10111111
+        .byte        %00111111
+        .byte        %10111111
+        .byte        %10111111
+        .byte        %00011111
+
+.two_left
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %00011111
+        .byte        %01111111
+        .byte        %00011111
+
+.three_left
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %00011111
+
+.four_left
+        .byte        %01011111
+        .byte        %01011111
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %11011111
+
+.five_left
+        .byte        %00011111
+        .byte        %01111111
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %00011111
+
+.six_left
+        .byte        %00011111
+        .byte        %01111111
+        .byte        %00011111
+        .byte        %01011111
+        .byte        %00011111
+
+.seven_left
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %11011111
+        .byte        %11011111
+        .byte        %11011111
+
+.eight_left
+        .byte        %00011111
+        .byte        %01011111
+        .byte        %00011111
+        .byte        %01011111
+        .byte        %00011111
+
+.nine_left
+        .byte        %00011111
+        .byte        %01011111
+        .byte        %00011111
+        .byte        %11011111
+        .byte        %00011111
+
 
 ;------------------------------------------------
 ; Interrupt Vectors
