@@ -21,7 +21,7 @@ BLACK = #$00
 PF_REFLECT = %00000001
 PF_BALL_SIZE4 = %00100000
 PLAYER1G =	%11111111
-PLAYER_RIGHT = %10000000
+PLAYER_RIGHT = %11110000
 PLAYER_LEFT = %00010000
 
 ;------------------------------------------------
@@ -130,6 +130,9 @@ MainLoop
 	lda		SWCHA
 	and		#%10000000
 	beq		.spriteRight
+	lda		SWCHA
+	and		#%01000000
+	beq		.spriteLeft
 	jmp		.waitForVBlank
 	
 .spriteRight
@@ -145,6 +148,10 @@ MainLoop
 	jmp		.waitForVBlank
 
 .spriteLeft
+
+	lda		#PLAYER_LEFT
+	sta		HMP0
+	sta		WSYNC
 	sta		HMOVE
 	
 .waitForVBlank
