@@ -21,8 +21,8 @@ BLACK = #$00
 PF_REFLECT = %00000001
 PF_BALL_SIZE4 = %00100000
 PLAYER1G =	%11111111
-PLAYER_RIGHT = 1
-PLAYER_LEFT = -1
+PLAYER_RIGHT = %10000000
+PLAYER_LEFT = %00010000
 
 ;------------------------------------------------
 ; RAM
@@ -73,9 +73,6 @@ Start
 	sta					PF0
 	sta					PF1
 	sta					PF2 
-	
-	lda					#PLAYER_RIGHT
-	sta					HMP0
 
 
 ;------------------------------------------------
@@ -136,6 +133,14 @@ MainLoop
 	jmp		.waitForVBlank
 	
 .spriteRight
+	;00010000 moves left 1
+	;1001000  moves right 1
+	;follow this pattern when using HMOVE
+	;sta	WSYNC
+	;sta	HMOVE
+	lda		#PLAYER_RIGHT
+	sta		HMP0
+	sta		WSYNC
 	sta		HMOVE
 	jmp		.waitForVBlank
 
@@ -146,6 +151,7 @@ MainLoop
 	lda		INTIM
 	bne		.waitForVBlank
 	sta		WSYNC
+
 
 ;------------------------------------------------
 ; Kernel
