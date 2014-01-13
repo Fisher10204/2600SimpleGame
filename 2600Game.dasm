@@ -128,13 +128,65 @@ MainLoop
 	sta					starting_value_hi
 .spriteStuff
 	lda		SWCHA
+	and		#%10010000
+	beq		.spriteDiagUpR
+	lda		SWCHA
+	and		#%01010000
+	beq		.spriteDiagUpL
+	lda		SWCHA
+	and		#%10100000
+	beq		.spriteDiagDownR
+	lda		SWCHA
+	and		#%01100000
+	beq		.spriteDiagDownL
+	lda		SWCHA
 	and		#%10000000
 	beq		.spriteRight
 	lda		SWCHA
 	and		#%01000000
 	beq		.spriteLeft
+	lda		SWCHA
+	and		#%00010000
+	beq		.spriteUp
+	lda		SWCHA
+	and		#%00100000
+	beq		.spriteDown
 	jmp		.waitForVBlank
-	
+
+.spriteDiagUpR
+	inc		pv
+	lda		#PLAYER_RIGHT
+	sta		HMP0
+	sta		WSYNC
+	sta		HMOVE
+	jmp		.waitForVBlank
+.spriteDiagDownR
+	dec		pv
+	lda		#PLAYER_RIGHT
+	sta		HMP0
+	sta		WSYNC
+	sta		HMOVE
+	jmp		.waitForVBlank
+.spriteDiagUpL
+	inc		pv
+	lda		#PLAYER_LEFT
+	sta		HMP0
+	sta		WSYNC
+	sta		HMOVE
+	jmp		.waitForVBlank
+.spriteDiagDownL
+	dec		pv
+	lda		#PLAYER_LEFT
+	sta		HMP0
+	sta		WSYNC
+	sta		HMOVE
+	jmp		.waitForVBlank
+.spriteDown
+	dec		pv
+	jmp		.waitForVBlank
+.spriteUp
+	inc		pv
+	jmp		.waitForVBlank
 .spriteRight
 	;00010000 moves left 1
 	;1001000  moves right 1
