@@ -53,8 +53,8 @@ Start
 	
 	;lda                	#PF_REFLECT | PF_BALL_SIZE4
     ;sta                	CTRLPF
-    ;lda                	#2
-    ;sta                	ENABL
+    lda                	#2
+    sta                	ENABL
     
     lda                	#0
     sta                	horiz
@@ -138,28 +138,28 @@ MainLoop
 	sta					starting_value_hi
 .spriteStuff
 	lda		SWCHA
-	and		#%10011111
+	and		#%10010000
 	beq		.spriteDiagUpR
 	lda		SWCHA
-	and		#%01011111
+	and		#%01010000
 	beq		.spriteDiagUpL
 	lda		SWCHA
-	and		#%10101111
+	and		#%10100000
 	beq		.spriteDiagDownR
 	lda		SWCHA
-	and		#%01101111
+	and		#%01100000
 	beq		.spriteDiagDownL
 	lda		SWCHA
-	and		#%10001111
+	and		#%10000000
 	beq		.spriteRight
 	lda		SWCHA
-	and		#%01001111
+	and		#%01000000
 	beq		.spriteLeft
 	lda		SWCHA
-	and		#%00011111
+	and		#%00010000
 	beq		.spriteUp
 	lda		SWCHA
-	and		#%00101111
+	and		#%00100000
 	beq		.spriteDown
 	jmp		.spriteStuff2
 
@@ -205,73 +205,73 @@ MainLoop
 	sta		HMP0
 	
 .spriteStuff2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteDiagUpR2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteDiagUpL2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteDiagDownR2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteDiagDownL2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteRight2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteLeft2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteUp2
-	lda		SWCHA
-	and		#%00001000
-	beq		.spriteDown2
-	jmp		.waitForVBlank
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteDiagUpR2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteDiagUpL2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteDiagDownR2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteDiagDownL2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteRight2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteLeft2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteUp2
+;	lda		SWCHA
+;	and		#%00001000
+;	beq		.spriteDown2
+;	jmp		.waitForVBlank
 
-.spriteDiagUpR2
-	inc		p2v
-	lda		#PLAYER2_RIGHT
-	sta		HMP1
-	jmp		.hmove2
-.spriteDiagDownR2
-	dec		p2v
-	lda		#PLAYER2_RIGHT
-	sta		HMP1
-	jmp		.hmove2
-.spriteDiagUpL2
-	inc		p2v
-	lda		#PLAYER2_LEFT
-	sta		HMP1
-	jmp		.hmove2
-.spriteDiagDownL2
-	dec		p2v
-	lda		#PLAYER2_LEFT
-	sta		HMP1
-	jmp		.hmove2
-.spriteDown2
-	dec		p2v
-	jmp		.hmove2
-.spriteUp2
-	inc		p2v
-	jmp		.hmove2
-.spriteRight2
-	;00010000 moves left 1
-	;1001000  moves right 1
-	;follow this pattern when using HMOVE
-	;sta	WSYNC
-	;sta	HMOVE
-	lda		#PLAYER2_RIGHT
-	sta		HMP1
-	jmp		.hmove2
-
-.spriteLeft2
-
-	lda		#PLAYER2_LEFT
-	sta		HMP1
-
+;.spriteDiagUpR2
+;	inc		p2v
+;	lda		#PLAYER2_RIGHT
+;	sta		HMP1
+;	jmp		.hmove2
+;.spriteDiagDownR2
+;	dec		p2v
+;	lda		#PLAYER2_RIGHT
+;	sta		HMP1
+;	jmp		.hmove2
+;.spriteDiagUpL2
+;	inc		p2v
+;	lda		#PLAYER2_LEFT
+;	sta		HMP1
+;	jmp		.hmove2
+;.spriteDiagDownL2
+;	dec		p2v
+;	lda		#PLAYER2_LEFT
+;	sta		HMP1
+;	jmp		.hmove2
+;.spriteDown2
+;	dec		p2v
+;	jmp		.hmove2
+;.spriteUp2
+;	inc		p2v
+;	jmp		.hmove2
+;.spriteRight2
+;	;00010000 moves left 1
+;	;1001000  moves right 1
+;	;follow this pattern when using HMOVE
+;	;sta	WSYNC
+;	;sta	HMOVE
+;	lda		#PLAYER2_RIGHT
+;	sta		HMP1
+;	jmp		.hmove2
+;
+;.spriteLeft2
+;
+;	lda		#PLAYER2_LEFT
+;	sta		HMP1
+;
 .hmove2
 	sta		WSYNC
 	sta		HMOVE
@@ -318,6 +318,18 @@ DrawScreen
     sta             CTRLPF
 	jmp				.playfieldLoop
 	
+.enableBall
+
+	lda				#2
+	sta				ENABL
+	sta				RESBL
+	jmp				.continueplayfieldloop
+	
+.disableBall
+	lda				#0
+	sta				ENABL
+	jmp				.continueplayfieldloop
+	
 .enableSprite
 	lda				#PLAYER1G
 	sta				GRP0
@@ -351,6 +363,7 @@ DrawScreen
 	jmp				.disableSprite2
 	
 .continueplayfieldloop
+	jmp				.enableBall
 	sta				WSYNC
     lda            	#%00110000
     sta             PF0
