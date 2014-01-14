@@ -23,6 +23,8 @@ PF_BALL_SIZE4 = %00100000
 PLAYER1G =	%11111111
 PLAYER_RIGHT = %11110000
 PLAYER_LEFT = %00010000
+PLAYER2_RIGHT = %00001111
+PLAYER2_LEFT = %00000001
 
 ;------------------------------------------------
 ; RAM
@@ -38,6 +40,7 @@ starting_value_hi	.byte
 horiz       		.byte
 vert        		.byte
 pv					.byte
+p2v					.byte
 loopCounter			.byte
 ;------------------------------------------------
 ; Start of ROM
@@ -48,8 +51,8 @@ loopCounter			.byte
 Start 
 	CLEAN_START			; Clear RAM and Registers
 	
-	lda                	#PF_REFLECT | PF_BALL_SIZE4
-    sta                	CTRLPF
+	;lda                	#PF_REFLECT | PF_BALL_SIZE4
+    ;sta                	CTRLPF
     ;lda                	#2
     ;sta                	ENABL
     
@@ -58,11 +61,18 @@ Start
     lda                	#30
     sta                	vert
 	sta					pv
+	lda					#45
+	sta					p2v
 
 	lda				  	#%00000000
 	sta				  	GRP0
 	lda				  	#$C3
 	sta 				COLUP0
+	
+	lda				  	#%00000000
+	sta				  	GRP1
+	lda				  	#$40
+	sta 				COLUP1
 	
 	lda                	#$80
     sta                	COLUBK
@@ -128,65 +138,57 @@ MainLoop
 	sta					starting_value_hi
 .spriteStuff
 	lda		SWCHA
-	and		#%10010000
+	and		#%10011111
 	beq		.spriteDiagUpR
 	lda		SWCHA
-	and		#%01010000
+	and		#%01011111
 	beq		.spriteDiagUpL
 	lda		SWCHA
-	and		#%10100000
+	and		#%10101111
 	beq		.spriteDiagDownR
 	lda		SWCHA
-	and		#%01100000
+	and		#%01101111
 	beq		.spriteDiagDownL
 	lda		SWCHA
-	and		#%10000000
+	and		#%10001111
 	beq		.spriteRight
 	lda		SWCHA
-	and		#%01000000
+	and		#%01001111
 	beq		.spriteLeft
 	lda		SWCHA
-	and		#%00010000
+	and		#%00011111
 	beq		.spriteUp
 	lda		SWCHA
-	and		#%00100000
+	and		#%00101111
 	beq		.spriteDown
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 
 .spriteDiagUpR
 	inc		pv
 	lda		#PLAYER_RIGHT
 	sta		HMP0
-	sta		WSYNC
-	sta		HMOVE
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 .spriteDiagDownR
 	dec		pv
 	lda		#PLAYER_RIGHT
 	sta		HMP0
-	sta		WSYNC
-	sta		HMOVE
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 .spriteDiagUpL
 	inc		pv
 	lda		#PLAYER_LEFT
 	sta		HMP0
-	sta		WSYNC
-	sta		HMOVE
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 .spriteDiagDownL
 	dec		pv
 	lda		#PLAYER_LEFT
 	sta		HMP0
-	sta		WSYNC
-	sta		HMOVE
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 .spriteDown
 	dec		pv
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 .spriteUp
 	inc		pv
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 .spriteRight
 	;00010000 moves left 1
 	;1001000  moves right 1
@@ -195,22 +197,90 @@ MainLoop
 	;sta	HMOVE
 	lda		#PLAYER_RIGHT
 	sta		HMP0
-	sta		WSYNC
-	sta		HMOVE
-	jmp		.waitForVBlank
+	jmp		.spriteStuff2
 
 .spriteLeft
 
 	lda		#PLAYER_LEFT
 	sta		HMP0
+	
+.spriteStuff2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteDiagUpR2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteDiagUpL2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteDiagDownR2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteDiagDownL2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteRight2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteLeft2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteUp2
+	lda		SWCHA
+	and		#%00001000
+	beq		.spriteDown2
+	jmp		.waitForVBlank
+
+.spriteDiagUpR2
+	inc		p2v
+	lda		#PLAYER2_RIGHT
+	sta		HMP1
+	jmp		.hmove2
+.spriteDiagDownR2
+	dec		p2v
+	lda		#PLAYER2_RIGHT
+	sta		HMP1
+	jmp		.hmove2
+.spriteDiagUpL2
+	inc		p2v
+	lda		#PLAYER2_LEFT
+	sta		HMP1
+	jmp		.hmove2
+.spriteDiagDownL2
+	dec		p2v
+	lda		#PLAYER2_LEFT
+	sta		HMP1
+	jmp		.hmove2
+.spriteDown2
+	dec		p2v
+	jmp		.hmove2
+.spriteUp2
+	inc		p2v
+	jmp		.hmove2
+.spriteRight2
+	;00010000 moves left 1
+	;1001000  moves right 1
+	;follow this pattern when using HMOVE
+	;sta	WSYNC
+	;sta	HMOVE
+	lda		#PLAYER2_RIGHT
+	sta		HMP1
+	jmp		.hmove2
+
+.spriteLeft2
+
+	lda		#PLAYER2_LEFT
+	sta		HMP1
+
+.hmove2
 	sta		WSYNC
 	sta		HMOVE
 	
+
 .waitForVBlank
 	lda		INTIM
 	bne		.waitForVBlank
 	sta		WSYNC
-
 
 ;------------------------------------------------
 ; Kernel
@@ -244,24 +314,42 @@ DrawScreen
 	sta				WSYNC
 	sta				WSYNC
 	ldx 			#169
+	lda             #PF_REFLECT | PF_BALL_SIZE4
+    sta             CTRLPF
 	jmp				.playfieldLoop
 	
 .enableSprite
 	lda				#PLAYER1G
 	sta				GRP0
-	jmp				.continueplayfieldloop
+	jmp				.playfieldLoop2
 
 .disableSprite
 	lda				#%00000000
 	sta				GRP0
+	jmp				.playfieldLoop2
+.enableSprite2
+	lda				#PLAYER1G
+	sta				GRP1
 	jmp				.continueplayfieldloop
-	
+
+.disableSprite2
+	lda				#%00000000
+	sta				GRP1
+	jmp				.continueplayfieldloop
+
 .playfieldLoop
 	txa
 	sbc				pv
 	adc				#5
 	bcs				.enableSprite
 	jmp				.disableSprite
+.playfieldLoop2
+	txa
+	sbc				p2v
+	adc				#5
+	bcs				.enableSprite2
+	jmp				.disableSprite2
+	
 .continueplayfieldloop
 	sta				WSYNC
     lda            	#%00110000
@@ -303,6 +391,10 @@ DrawScreen
     sta		TIM64T
 
 	;***** Overscan Code goes here
+	lda		#%00000000
+	sta		HMP0
+	lda			#%00000000
+	sta			CTRLPF
 
 .waitForOverscan
 	lda     INTIM
