@@ -363,7 +363,6 @@ DrawScreen
 	jmp				.disableSprite2
 	
 .continueplayfieldloop
-	jmp				.enableBall
 	sta				WSYNC
     lda            	#%00110000
     sta             PF0
