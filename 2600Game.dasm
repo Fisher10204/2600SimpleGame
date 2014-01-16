@@ -556,6 +556,7 @@ DrawScreen
 	sta				WSYNC
 	sta				WSYNC
 	ldx 			#169
+	ldy				#0
 	lda             #PF_REFLECT | PF_BALL_SIZE4
     sta             CTRLPF
 	jmp				.playfieldLoop
