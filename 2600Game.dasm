@@ -37,12 +37,16 @@ frame				.byte
 score				.byte
 starting_value_lo	.byte
 starting_value_hi	.byte
+starting_value_lo2	.byte
+starting_value_hi2	.byte
 horiz       		.byte
 vert        		.byte
 pv					.byte
 p2v					.byte
 loopCounter			.byte
 counter				.byte
+;ballVert			.byte
+score2				.byte
 ;------------------------------------------------
 ; Start of ROM
 ;------------------------------------------------
@@ -65,6 +69,7 @@ Start
 	sta					pv
 	lda					#45
 	sta					p2v
+;	sta					ballVert
 
 	lda				  	#%00000000
 	sta				  	GRP0
@@ -101,12 +106,13 @@ MainLoop
 	
 	lda		#5
 	sta		loopCounter
-	
+	jmp		.ballStuff
+.scoreStuff	
 	;increment score
 	clc
 	sed
 	lda                score
-	adc                #1
+	adc                #10
 	sta                score
 	cld
 	;calculate starting_value for low bits of score
@@ -138,6 +144,49 @@ MainLoop
 	clc
 	adc					starting_value_hi
 	sta					starting_value_hi
+	lda					#0
+	sta					ENABL
+	jmp					.waitForVBlank
+.scoreStuff2	
+	;increment score
+	clc
+	sed
+	lda                score2
+	adc                #10
+	sta                score2
+	cld
+	;calculate starting_value for low bits of score
+	lda					score2
+	and					#%00001111
+	;store current score
+	sta					starting_value_lo2
+	;multiply it by 4
+	asl
+	asl
+
+	clc
+	adc					starting_value_lo2
+	sta					starting_value_lo2
+	;Calculate starting x for the hi bits
+	lda					score2
+	;Shifts the 4 hi bits to the right, 4 places
+	lsr
+	lsr
+	lsr
+	lsr
+	;store current score
+	sta					starting_value_hi2
+	;multiply it by 4
+	clc
+	asl
+	asl
+
+	clc
+	adc					starting_value_hi2
+	sta					starting_value_hi2
+	lda					#0
+	sta					ENABL
+	jmp					.waitForVBlank
 	
 .ballStuff
 		lda					counter
@@ -327,7 +376,7 @@ MainLoop
         eor                                        #%11110000
         and             #%00000010
         beq             .spriteDown2
-        jmp             .waitForVBlank
+        jmp             .checkBallCollision
 .jumpTospriteRight2
 		jmp				.spriteRight2
 .jumpTospriteLeft2
@@ -431,9 +480,22 @@ MainLoop
 .hmove3
         sta                WSYNC
         sta                HMOVE
-.checkWallCollisionP0
 
 
+.checkBallCollision
+		;player0
+		lda			 	CXP0FB
+		and				#%01000000
+		bne				.incrementScore
+		;player1
+		lda			 	CXP1FB
+		and				#%01000000
+		bne				.incrementScore2
+		jmp				.waitForVBlank
+.incrementScore
+		jmp				.scoreStuff
+.incrementScore2
+		jmp				.scoreStuff2
 .waitForVBlank
 		lda				#%00000000
 		sta				HMP0
@@ -449,7 +511,7 @@ DrawScreen
 ;Kernel goes here
 	
 	ldx				starting_value_hi
-	ldy				#0
+	ldy				starting_value_hi2
 	lda				.zero_left,x
 .drawScore
 	sta				PF1
@@ -460,12 +522,17 @@ DrawScreen
 	nop
 	nop
 	nop
-	lda				#%11111111
+	lda				.zero_left,y
+	;lda				#%11111111
 	sta				PF1
 	;sta				WSYNC
-	
+	nop
+	nop
+	nop
+	nop
 	sta				WSYNC
 	inx
+	iny
 	lda				.zero_left,x
 	sta				PF1
 	dec				loopCounter
