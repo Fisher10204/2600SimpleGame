@@ -165,47 +165,47 @@ MainLoop
 
 .spriteDiagUpR
         inc                pv
-	inc					pv
+        inc                                        pv
         lda                #PLAYER_RIGHT
         sta                HMP0
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 .spriteDiagDownR
-	dec					pv
+        dec                                        pv
         dec                pv
         lda                #PLAYER_RIGHT
         sta                HMP0
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 .spriteDiagUpL
-	inc					pv
+        inc                                        pv
         inc                pv
         lda                #PLAYER_LEFT
         sta                HMP0
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 .spriteDiagDownL
-	dec					pv
+        dec                                        pv
         dec                pv
         lda                #PLAYER_LEFT
         sta                HMP0
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 .spriteDown
-	dec					pv
+        dec                                        pv
         dec                pv
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 .spriteUp
-	inc					pv
+        inc                                        pv
         inc                pv
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 .spriteRight
         ;00010000 moves left 1
@@ -215,16 +215,16 @@ MainLoop
         ;sta        HMOVE
         lda                #PLAYER_RIGHT
         sta                HMP0
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove2
 
 .spriteLeft
 
         lda                #PLAYER_LEFT
         sta                HMP0
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
 
 .hmove2
         sta                WSYNC
@@ -233,35 +233,35 @@ MainLoop
 
 .spriteStuff2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00001001
         beq                .spriteDiagUpR2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00000101
         beq                .spriteDiagUpL2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00001010
         beq                .spriteDiagDownR2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00000110
         beq                .spriteDiagDownL2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00001000
         beq                .spriteRight2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00000100
         beq                .spriteLeft2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00000001
         beq                .spriteUp2
         lda                SWCHA
-	eor					#%11110000
+        eor                                        #%11110000
         and                #%00000010
         beq                .spriteDown2
         jmp                .waitForVBlank
@@ -270,36 +270,44 @@ MainLoop
         inc                p2v
         lda                #PLAYER_RIGHT
         sta                HMP1
+        lda                                        #%00000000
+        sta                                        HMP0
         jmp                .hmove3
 .spriteDiagDownR2
         dec                p2v
         dec                p2v
         lda                #PLAYER_RIGHT
         sta                HMP1
+        lda                                        #%00000000
+        sta                                        HMP0
         jmp                .hmove3
 .spriteDiagUpL2
         inc                p2v
         inc                p2v
         lda                #PLAYER_LEFT
         sta                HMP1
+        lda                                        #%00000000
+        sta                                        HMP0
         jmp                .hmove3
 .spriteDiagDownL2
         dec                p2v
         dec                p2v
         lda                #PLAYER_LEFT
         sta                HMP1
+        lda                                        #%00000000
+        sta                                        HMP0
         jmp                .hmove3
 .spriteDown2
         dec                p2v
         dec                p2v
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove3
 .spriteUp2
         inc                p2v
         inc                p2v
-	lda					#%00000000
-	sta					HMP1
+        lda                                        #%00000000
+        sta                                        HMP1
         jmp                .hmove3
 .spriteRight2
         ;00010000 moves left 1
@@ -309,13 +317,16 @@ MainLoop
         ;sta        HMOVE
         lda                #PLAYER_RIGHT
         sta                HMP1
+        lda                                        #%00000000
+        sta                                        HMP0
         jmp                .hmove3
 
 .spriteLeft2
 
         lda                #PLAYER_LEFT
         sta                HMP1
-
+        lda                                        #%00000000
+        sta                                        HMP0
 .hmove3
         sta                WSYNC
         sta                HMOVE
@@ -337,7 +348,16 @@ DrawScreen
 	lda				.zero_left,x
 .drawScore
 	sta				PF1
-	sta				WSYNC
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	lda				#%11111111
+	sta				PF1
+	;sta				WSYNC
 	
 	sta				WSYNC
 	inx
@@ -352,6 +372,11 @@ DrawScreen
 	sta             PF1
 	sta             PF2
     
+	sta				WSYNC
+	sta				WSYNC
+	sta				WSYNC
+	sta				WSYNC
+	sta				WSYNC
 	sta				WSYNC
 	sta				WSYNC
 	sta				WSYNC
@@ -593,13 +618,13 @@ DrawScreen
 		
 		.byte		%00000000
 		.byte		%00000000
-		.byte		%11110000
-		.byte		%11110000
-		.byte		%11110000
-		.byte		%11110000
-		.byte		%11110000
-		.byte		%11110000
 		.byte		%00000000
+		.byte		%00000000
+		.byte		%00000000
+		.byte		%11110000
+		.byte		%11110000
+		.byte		%11110000
+		.byte		%11110000
 		.byte		%00000000
 		
 		.byte		%00000000
